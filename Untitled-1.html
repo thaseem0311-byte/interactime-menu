@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Stopwatch</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      min-height: 100vh;
+      margin: 0;
+      display: grid;
+      place-items: center;
+      background: linear-gradient(135deg, #101827, #263b63);
+      color: white;
+      font-family: Arial, sans-serif;
+    }
+
+    .stopwatch {
+      width: min(90%, 420px);
+      padding: 32px 24px;
+      border: 1px solid rgb(255 255 255 / 15%);
+      border-radius: 20px;
+      background: rgb(255 255 255 / 8%);
+      box-shadow: 0 20px 50px rgb(0 0 0 / 25%);
+      text-align: center;
+    }
+
+    h1 {
+      margin: 0 0 24px;
+      font-size: 1.8rem;
+    }
+
+    #display {
+      margin-bottom: 28px;
+      font-size: clamp(2.6rem, 12vw, 4rem);
+      font-variant-numeric: tabular-nums;
+      letter-spacing: 2px;
+    }
+
+    .buttons {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    button {
+      padding: 11px 18px;
+      border: 0;
+      border-radius: 9px;
+      background: #f59e0b;
+      color: #172033;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform 0.15s, opacity 0.15s;
+    }
+
+    button:hover {
+      transform: translateY(-2px);
+      opacity: 0.9;
+    }
+
+    button:disabled {
+      cursor: not-allowed;
+      opacity: 0.5;
+      transform: none;
+    }
+
+    #laps {
+      max-height: 220px;
+      margin: 24px 0 0;
+      padding: 0;
+      overflow-y: auto;
+      list-style: none;
+      text-align: left;
+    }
+
+    #laps li {
+      display: flex;
+      justify-content: space-between;
+      padding: 10px 4px;
+      border-bottom: 1px solid rgb(255 255 255 / 15%);
+      font-variant-numeric: tabular-nums;
+    }
+
+    .lap-number {
+      color: #fbbf24;
+    }
+  </style>
+</head>
+<body>
+  <main class="stopwatch">
+    <h1>Stopwatch</h1>
+
+    <div id="display" role="timer" aria-live="off">00:00.00</div>
+
+    <div class="buttons">
+      <button id="startPause" type="button">Start</button>
+      <button id="lap" type="button" disabled>Lap</button>
+      <button id="reset" type="button">Reset</button>
+    </div>
+
+    <ol id="laps" aria-label="Lap times"></ol>
+  </main>
+
+  <script>
+    const display = document.getElementById("display");
+    const startPauseButton = document.getElementById("startPause");
+    const lapButton = document.getElementById("lap");
+    const resetButton = document.getElementById("reset");
+    const lapsList = document.getElementById("laps");
+
+    let running = false;
+    let startedAt = 0;
+    let elapsedBeforeStart = 0;
+    let animationFrameId = null;
+    let lapCount = 0;
+
+    function formatTime(milliseconds) {
+      const totalCentiseconds = Math.floor(milliseconds / 10);
+      const centiseconds = totalCentiseconds % 100;
+      const totalSeconds = Math.floor(totalCentiseconds / 100);
+      const seconds = totalSeconds % 60;
+      const minutes = Math.floor(totalSeconds / 60) % 60;
+      const hours = Math.floor(totalSeconds / 3600);
+
+      const twoDigits = (number) => String(number).padStart(2, "0");
+
+      if (hours > 0) {
+        return `${twoDigits(hours)}:${twoDigits(minutes)}:${twoDigits(seconds)}.${twoDigits(centiseconds)}`;
+      }
+
+      return `${twoDigits(minutes)}:${twoDigits(seconds)}.${twoDigits(centiseconds)}`;
+    }
+
+    function updateDisplay() {
+      const elapsed = elapsedBeforeStart + (performance.now() - startedAt);
+      display.textContent = formatTime(elapsed);
+
+      if (running) {
+        animationFrameId = requestAnimationFrame(updateDisplay);
+      }
+    }
+
+    function startStopwatch() {
+      if (!running) {
+        running = true;
+        startedAt = performance.now();
+        startPauseButton.textContent = "Pause";
+        lapButton.disabled = false;
+        updateDisplay();
+      } else {
+        running = false;
+        elapsedBeforeStart += performance.now() - startedAt;
+        cancelAnimationFrame(animationFrameId);
+        startPauseButton.textContent = "Start";
+      }
+    }
+
+    function addLap() {
+      if (!running) return;
+
+      lapCount += 1;
+
+      const item = document.createElement("li");
+      const number = document.createElement("span");
+      const time = document.createElement("span");
+
+      number.className = "lap-number";
+      number.textContent = `Lap ${lapCount}`;
+      time.textContent = display.textContent;
+
+      item.append(number, time);
+      lapsList.prepend(item);
+    }
+
+    function resetStopwatch() {
+      running = false;
+      cancelAnimationFrame(animationFrameId);
+
+      startedAt = 0;
+      elapsedBeforeStart = 0;
+      lapCount = 0;
+
+      display.textContent = "00:00.00";
+      startPauseButton.textContent = "Start";
+      lapButton.disabled = true;
+      lapsList.replaceChildren();
+    }
+
+    startPauseButton.addEventListener("click", startStopwatch);
+    lapButton.addEventListener("click", addLap);
+    resetButton.addEventListener("click", resetStopwatch);
+  </script>
+</body>
+</html>
