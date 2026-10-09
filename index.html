@@ -1,0 +1,176 @@
+Here’s a complete, self-contained example. Save it as `index.html` and open it in a browser. The fixed navigation changes appearance when you scroll, and each menu item gets a hover style.
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Interactive Navigation Menu</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+      scroll-padding-top: 80px;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      color: #20242c;
+      background: #f4f6f9;
+    }
+
+    /* Fixed navigation stays visible while scrolling. */
+    .navbar {
+      position: fixed;
+      inset: 0 0 auto;
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 8%;
+      background: #172554;
+      color: #fff;
+      transition: background-color 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .navbar.scrolled {
+      background: #fff;
+      color: #172554;
+      box-shadow: 0 3px 14px rgb(0 0 0 / 12%);
+    }
+
+    .brand {
+      color: inherit;
+      font-size: 1.2rem;
+      font-weight: 700;
+      text-decoration: none;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 8px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .nav-links a {
+      display: block;
+      padding: 10px 14px;
+      border-radius: 6px;
+      color: inherit;
+      font-weight: 600;
+      text-decoration: none;
+      transition: background-color 0.2s ease, color 0.2s ease;
+    }
+
+    .nav-links a:hover,
+    .nav-links a:focus-visible {
+      background: #f59e0b;
+      color: #172554;
+      outline: none;
+    }
+
+    main {
+      padding-top: 72px; /* Keeps the first section clear of the fixed menu. */
+    }
+
+    section {
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 48px 8%;
+      text-align: center;
+      scroll-margin-top: 72px;
+    }
+
+    section:nth-child(even) {
+      background: #e7edf5;
+    }
+
+    section h1 {
+      margin-bottom: 8px;
+      font-size: clamp(2rem, 5vw, 3.5rem);
+    }
+
+    section p {
+      max-width: 600px;
+      line-height: 1.6;
+    }
+
+    @media (max-width: 600px) {
+      .navbar {
+        padding: 12px 4%;
+      }
+
+      .nav-links {
+        gap: 2px;
+      }
+
+      .nav-links a {
+        padding: 9px 8px;
+        font-size: 0.9rem;
+      }
+
+      .brand {
+        font-size: 1rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <nav class="navbar" id="navbar" aria-label="Main navigation">
+    <a class="brand" href="#home">BrightSite</a>
+    <ul class="nav-links">
+      <li><a href="#home">Home</a></li>
+      <li><a href="#about">About</a></li>
+      <li><a href="#services">Services</a></li>
+      <li><a href="#contact">Contact</a></li>
+    </ul>
+  </nav>
+
+  <main>
+    <section id="home">
+      <div>
+        <h1>Welcome</h1>
+        <p>Scroll down to see the navigation change, or hover over a menu item.</p>
+      </div>
+    </section>
+    <section id="about">
+      <div>
+        <h1>About</h1>
+        <p>This section demonstrates smooth scrolling to a page destination.</p>
+      </div>
+    </section>
+    <section id="services">
+      <div>
+        <h1>Services</h1>
+        <p>The fixed navigation remains visible as you move through the page.</p>
+      </div>
+    </section>
+    <section id="contact">
+      <div>
+        <h1>Contact</h1>
+        <p>Use the menu links to jump between sections.</p>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const navbar = document.getElementById("navbar");
+
+    function updateNavbar() {
+      navbar.classList.toggle("scrolled", window.scrollY > 40);
+    }
+
+    window.addEventListener("scroll", updateNavbar, { passive: true });
+    updateNavbar();
+  </script>
+</body>
+</html>
+```
